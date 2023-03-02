@@ -159,6 +159,38 @@ services:
       DOCKER_HOST: "/var/run/balena.sock"
       PGID: "991" # ls -nd /var/run/balena.sock | awk '{print $4}'
 
+  itzg-minecraft-fabric:
+    network_mode: host
+    restart: always
+    image: itzg/minecraft-server
+    privileged: true
+    environment:
+      - EULA="TRUE"
+      - TYPE="FABRIC"
+    tty: true
+    stdin_open: true
+    labels:
+      io.balena.features.dbus: 1
+      io.balena.features.supervisor-api: 1
+    volumes:
+      - minecraft-data:/data
+    ports:
+      - "25565:25565/tcp"
+      - "25575:25575/tcp"
+
+  scp-server:
+    network_mode: host
+    restart: always
+    build: ./scp-server
+    privileged: false
+    labels:
+      io.balena.features.dbus: 1
+    volumes:
+      - minecraft-data:/data
+    ports:
+      - "22:22/udp"
+      - "22:22/tcp"
+
 volumes:
   config: {}
   influxdb: {}
@@ -171,3 +203,4 @@ volumes:
   tailscale: {}
   netdatalib: {}
   netdatacache: {}
+  minecraft-data: {}
